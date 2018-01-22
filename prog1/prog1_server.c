@@ -1,6 +1,6 @@
 /* demo_server.c - code for example server program that uses TCP */
 
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -97,8 +97,15 @@ int main(int argc, char **argv) {
 		}
 		visits++;
 		sprintf(buf,"This server has been contacted %d time%s\n",visits,visits==1?".":"s.");
+
+		uint8_t guesses = 6;
+		send(sd2,&guesses,sizeof(unit8_t),0);
+
 		send(sd2,buf,strlen(buf),0);
+
+		recv(sd2,&guesses,strlen(buf),0);
+		printf("Number of guesses %d\n", guesses);
+		
 		close(sd2);
 	}
 }
-
