@@ -84,15 +84,22 @@ int main( int argc, char **argv) {
 
 	/* Repeatedly read data from socket and write to user's screen. */
 	uint8_t guesses = 0;
-	n = recv(sd, &guesses, sizeof(guesses), 0);
-	printf("guesses: %d\n", guesses);
 
-	//recieve board
-	n = recv(sd, buf, sizeof(buf), 0);
 
-	while ((n > 0) && (winFlag == 0)) {
-		write(1,buf,n);
+	while (winFlag == 0) {
+		n = recv(sd, &guesses, sizeof(guesses), 0);
+		printf("guesses: %i\n", guesses);
+		//recieve board
 		n = recv(sd, buf, sizeof(buf), 0);
+		printf("%s\n", buf);
+		fgets(buf, sizeof(buf), stdin);
+		printf("%s\n", buf);// gets user guess
+
+		send(sd, buf, strlen(buf),0);
+
+		//check winFlag
+		n = recv(sd, &winFlag, sizeof(uint8_t), 0);
+		printf("winFlag %d\n", winFlag);
 	}
 
 	close(sd);
