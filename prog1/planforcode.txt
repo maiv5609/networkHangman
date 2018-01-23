@@ -1,0 +1,19 @@
+so the buffer acts like a mailbox. First you send two things, the guesses and the board. The guesses is just an int about guesses. The buffer is the board and the client's guess. First the guess gets sent over, client recieves this guess, then the buffer is sent over from the server. The buffer is filled with whatever the server currently has as the board. When both of these are sent the client will empty the buffer and store the board state. After doing this it will send over its guess and start the process over again.
+
+
+
+SERVER
+send(guesses)
+send(board)
+
+Client
+recv(guesses)
+recv(board)
+stores board;
+sends guess;
+
+SERVER
+process guess;
+fill buffer with current board state;
+repeat from top
+
