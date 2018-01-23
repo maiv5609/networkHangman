@@ -12,7 +12,7 @@
 
 #define QLEN 6 /* size of request queue */
 int visits = 0; /* counts client connections */
-int playHangman(pid_t p);
+int playHangman(int sd2);
 
 /*------------------------------------------------------------------------
 * Program: demo_server
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 			fprintf(stderr,"fork failed\n");
 			return 1;
 		} else if( p == 0 ) { //child
-			playHangman(p);
+			playHangman(sd2);
 		} else {	//parent
 
 		}
@@ -127,13 +127,21 @@ int main(int argc, char **argv) {
 
 }
 
-int playHangman(pid_t p) {
+int playHangman(int sd2) {
 	char word[] = "binary";
 	char board[] = "______";
+	char guess[50];
+
+	//char
 	uint8_t guesses =  strlen(word); //change to number of letters
 
-	if (guesses > 0 && strchr(board, '_')){
+	while (guesses > 0 && strchr(board, '_')){
+		//Send guesses and board
+		send(sd2,&guesses,sizeof(uint8_t),0);
+		send(sd2,board,strlen(board),0);
 
+		//Waits to recieve guess from client
+		recv(sd2, guess,strlen(buf),0);
 	}
 
 }

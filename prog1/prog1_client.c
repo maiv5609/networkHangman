@@ -32,6 +32,7 @@ int main( int argc, char **argv) {
 	char *host; /* pointer to host name */
 	int n; /* number of characters read */
 	char buf[1000]; /* buffer for data from the server */
+	int winFlag = 0; /* Server will send flag on if the client has won or not */
 
 	memset((char *)&sad,0,sizeof(sad)); /* clear sockaddr structure */
 	sad.sin_family = AF_INET; /* set family to Internet */
@@ -86,11 +87,13 @@ int main( int argc, char **argv) {
 	n = recv(sd, &guesses, sizeof(guesses), 0);
 	printf("guesses: %d\n", guesses);
 
+	//recieve board
 	n = recv(sd, buf, sizeof(buf), 0);
-	//while (n > 0) {
+
+	while ((n > 0) && (winFlag == 0)) {
 		write(1,buf,n);
-		//n = recv(sd, buf, sizeof(buf), 0);
-	//}
+		n = recv(sd, buf, sizeof(buf), 0);
+	}
 
 	close(sd);
 
