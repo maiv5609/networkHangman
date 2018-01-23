@@ -82,22 +82,15 @@ int main( int argc, char **argv) {
 	}
 
 	/* Repeatedly read data from socket and write to user's screen. */
-	//n = recv(sd, buf, sizeof(buf), 0);
+	uint8_t guesses = 0;
+	n = recv(sd, &guesses, sizeof(guesses), 0);
+	printf("guesses: %d\n", guesses);
+
+	n = recv(sd, buf, sizeof(buf), 0);
 	//while (n > 0) {
-	//	write(1,buf,n);
-	//	n = recv(sd, buf, sizeof(buf), 0);
+		write(1,buf,n);
+		//n = recv(sd, buf, sizeof(buf), 0);
 	//}
-
-	uint8_t test = 0;
-	n = recv(sd, &test, sizeof(test), 0);
-	printf("result from intet_ntop: %d\n", test);
-	n = recv(sd, &test, sizeof(test), 0);
-	printf("result from intet_ntop: %d\n", n);
-
-	uint8_t test2 = 20;
-	test2 = test2 + test2;
-
-	send(sd, &test2, sizeof(test2),0);
 
 	close(sd);
 

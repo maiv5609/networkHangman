@@ -8,9 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define QLEN 6 /* size of request queue */
 int visits = 0; /* counts client connections */
+int playHangman(pid_t p);
 
 /*------------------------------------------------------------------------
 * Program: demo_server
@@ -37,6 +39,8 @@ int main(int argc, char **argv) {
 	int alen; /* length of address */
 	int optval = 1; /* boolean value when we set socket option */
 	char buf[1000]; /* buffer for string the server sends */
+
+
 
 	if( argc != 2 ) {
 		fprintf(stderr,"Error: Wrong number of arguments\n");
@@ -95,17 +99,41 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "Error: Accept failed\n");
 			exit(EXIT_FAILURE);
 		}
-		visits++;
-		sprintf(buf,"This server has been contacted %d time%s\n",visits,visits==1?".":"s.");
+		//sleep(10);
+		signal(SIGCHLD,SIG_IGN);
+		pid_t p = fork();
+		if( p < 0 ) {
+			fprintf(stderr,"fork failed\n");
+			return 1;
+		} else if( p == 0 ) { //child
+			playHangman(p);
+		} else {	//parent
 
-		uint8_t guesses = 6;
-		send(sd2,&guesses,sizeof(unit8_t),0);
+		}
 
-		send(sd2,buf,strlen(buf),0);
-
-		recv(sd2,&guesses,strlen(buf),0);
-		printf("Number of guesses %d\n", guesses);
-		
-		close(sd2);
+		// visits++;
+		// sprintf(buf,"This server has been contacted %d time%s\n",visits,visits==1?".":"s.");
+		//
+		// send(sd2,&guesses,sizeof(uint8_t),0);
+		//
+		// send(sd2,buf,strlen(buf),0);
+		//
+		// //Testing recv from client
+		// recv(sd2,&guesses,strlen(buf),0);
+		// printf("Number of guesses %d\n", guesses);
+		//
+		// close(sd2);
 	}
+
+}
+
+int playHangman(pid_t p) {
+	char word[] = "binary";
+	char board[] = "______";
+	uint8_t guesses =  strlen(word); //change to number of letters
+
+	if (guesses > 0 && strchr(board, '_')){
+
+	}
+
 }
