@@ -83,28 +83,27 @@ int main( int argc, char **argv) {
 	}
 
 	/* Repeatedly read data from socket and write to user's screen. */
-	uint8_t guesses = 0;
+	//Default value
+	uint8_t guesses = 1;
 
-
-	while (winFlag == 0) {
+	while (guesses > 0 && guesses != 255) {
 		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
 		printf("client guesses: %i\n", guesses);
 		//recieve board
 		n = recv(sd, buf, sizeof(buf), 0);
-		printf("board is: %s\n", buf);
-		fgets(buf, sizeof(buf), stdin);
-		printf("guess is: %s\n", buf);// gets user guess
-
-		send(sd, buf, strlen(buf),0);
-
-		//check winFlag
-		n = recv(sd, &winFlag, sizeof(uint8_t), 0);
+		if(guesses != 0 && guesses != 255){
+			printf("board is: %s\n", buf);
+			printf("Please insert your guess\n");
+			fgets(buf, sizeof(buf), stdin);
+			printf("guess is: %s\n", buf);// gets user guess
+			send(sd, buf, strlen(buf),0);
+		}
 	}
-
-	if(winFlag == 1){
+	dprintf(2, "exited\n");
+	if(guesses == 255){
 		printf("You win\n");
 	}else{
-		printf("Get good scrub\n");
+		printf("You lost\n");
 	}
 
 	close(sd);

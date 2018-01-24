@@ -12,7 +12,7 @@
 
 #define QLEN 6 /* size of request queue */
 int visits = 0; /* counts client connections */
-int playHangman(int sd2);
+int playHangman(int sd2, char word[]); /* Main game function */
 
 /*------------------------------------------------------------------------
 * Program: demo_server
@@ -106,7 +106,9 @@ int main(int argc, char **argv) {
 			fprintf(stderr,"fork failed\n");
 			return 1;
 		} else if( p == 0 ) { //child
-			playHangman(sd2);
+			char word[strlen(argv[2])] = argv[2];
+
+			playHangman(sd2, word);
 		} else {	//parent
 
 		}
@@ -127,23 +129,21 @@ int main(int argc, char **argv) {
 
 }
 
-int playHangman(int sd2) {
-	char word[] = "binary";
-	char board[] = "______";
+int playHangman(int sd2, char word[]) {
 	char buf[1000];
+	char board[strlen(word)];
 	int n = 0;
+	//make board
+	memset(board, '_', sizeof(board));
+	printf("%s\n",board);
 
 	//char
 	uint8_t guesses =  strlen(word); //change to number of letters
-	uint8_t winFlag = 0;
 
 	while (guesses > 0 && strchr(board, '_')){
-		//Send guesses and board
-		send(sd2, &guesses,sizeof(uint8_t),0);
-		printf("server guesses: %i\n", guesses);
-		send(sd2, board,strlen(board),0);
+		int correct = 0;
 
-		//Waits to recieve guess from client
+		//Send guesses and boardchar word[] = "hello";
 		n = recv(sd2,buf,strlen(buf),0);
 		if (n <= 0){
 			printf("recv failed\n");
@@ -151,16 +151,19 @@ int playHangman(int sd2) {
 		for(int i = 0; i < strlen(board); i++){
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
+				correct = 1;
 			}
 		}
-		//printf("%s\n", buf);
-		send(sd2, &winFlag, sizeof(uint8_t),0);
-		guesses--;
+
+		if (correct == 0){
+			guesses--;
+		}
 	}
-	if(strcmp(word, board) == 0){
-		winFlag = 1;
-	}else{
-		winFlag = -1;
+	if (strchr(board, '_') == '\0'){
+		guesses = 255;
 	}
-	send(sd2, &winFlag, sizeof(uint8_t),0);
+	send(sd2, &guesses,sizeof(uint8_t),0);
+	send(sd2, board,strlen(board),0);
+	dprintf(2, "Game finished");
+	close(sd2);
 }
