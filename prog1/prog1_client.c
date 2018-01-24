@@ -87,19 +87,24 @@ int main( int argc, char **argv) {
 
 
 	while (winFlag == 0) {
-		n = recv(sd, &guesses, sizeof(guesses), 0);
-		printf("guesses: %i\n", guesses);
+		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
+		printf("client guesses: %i\n", guesses);
 		//recieve board
 		n = recv(sd, buf, sizeof(buf), 0);
-		printf("%s\n", buf);
+		printf("board is: %s\n", buf);
 		fgets(buf, sizeof(buf), stdin);
-		printf("%s\n", buf);// gets user guess
+		printf("guess is: %s\n", buf);// gets user guess
 
 		send(sd, buf, strlen(buf),0);
 
 		//check winFlag
 		n = recv(sd, &winFlag, sizeof(uint8_t), 0);
-		printf("winFlag %d\n", winFlag);
+	}
+
+	if(winFlag == 1){
+		printf("You win\n");
+	}else{
+		printf("Get good scrub\n");
 	}
 
 	close(sd);

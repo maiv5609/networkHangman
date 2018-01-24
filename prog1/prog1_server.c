@@ -130,22 +130,24 @@ int main(int argc, char **argv) {
 int playHangman(int sd2) {
 	char word[] = "binary";
 	char board[] = "______";
-	char buf[50];
-	int size = strlen(word);
+	char buf[1000];
+	int n = 0;
 
 	//char
-	uint8_t guesses =  size; //change to number of letters
+	uint8_t guesses =  strlen(word); //change to number of letters
 	uint8_t winFlag = 0;
 
 	while (guesses > 0 && strchr(board, '_')){
 		//Send guesses and board
-		send(sd2, &size,sizeof(uint8_t),0);
+		send(sd2, &guesses,sizeof(uint8_t),0);
+		printf("server guesses: %i\n", guesses);
 		send(sd2, board,strlen(board),0);
 
 		//Waits to recieve guess from client
-		recv(sd2,buf,strlen(buf),0);
-		guesses--;
-
+		n = recv(sd2,buf,strlen(buf),0);
+		if (n <= 0){
+			printf("recv failed\n");
+		}
 		for(int i = 0; i < strlen(board); i++){
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
@@ -153,6 +155,12 @@ int playHangman(int sd2) {
 		}
 		//printf("%s\n", buf);
 		send(sd2, &winFlag, sizeof(uint8_t),0);
+		guesses--;
+	}
+	if(strcmp(word, board) == 0){
+		winFlag = 1;
+	}else{
+		winFlag = -1;
 	}
 	send(sd2, &winFlag, sizeof(uint8_t),0);
 }
