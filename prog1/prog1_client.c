@@ -89,10 +89,10 @@ int main( int argc, char **argv) {
 		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
 		printf("client guesses: %i\n", guesses);
 		//recieve board
-		n = recv(sd, buf, sizeof(buf), 0);
 		if(contacts == 0){
 			contacts = guesses;
 		}
+		n = recv(sd, buf, sizeof(buf), 0);
 		buf[contacts] = '\0';
 		printf("n is: %d\n", n);
 		if(guesses != 0 && guesses != 255){

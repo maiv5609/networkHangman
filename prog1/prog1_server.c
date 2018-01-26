@@ -153,10 +153,10 @@ int playHangman(int sd2, char* word) {
 		send(sd2, &guesses,sizeof(uint8_t),0);
 		printf("server guesses: %i\n", guesses);
 		printf("server board: %s\n", board);
-		send(sd2, board,sizeof(board),0);
+		send(sd2, board, strlen(board),0);
 		int correct = 0;
 		//Send guesses and boardchar word[] = "hello";
-		n = recv(sd2,buf,strlen(buf),0);
+		n = recv(sd2,buf,sizeof(buf),0);
 		if (n <= 0){
 			printf("recv failed\n");
 		}
