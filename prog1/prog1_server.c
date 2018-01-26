@@ -12,7 +12,7 @@
 
 #define QLEN 6 /* size of request queue */
 int visits = 0; /* counts client connections */
-int playHangman(int sd2); /* Main game function */
+int playHangman(int sd2, char* word); /* Main game function */
 
 /*------------------------------------------------------------------------
 * Program: demo_server
@@ -42,10 +42,10 @@ int main(int argc, char **argv) {
 
 
 
-	if( argc != 2 ) {
+	if( argc != 3 ) {
 		fprintf(stderr,"Error: Wrong number of arguments\n");
 		fprintf(stderr,"usage:\n");
-		fprintf(stderr,"./server server_port\n");
+		fprintf(stderr,"./server server_port word\n");
 		exit(EXIT_FAILURE);
 	}
 
@@ -106,8 +106,9 @@ int main(int argc, char **argv) {
 			fprintf(stderr,"fork failed\n");
 			return 1;
 		} else if( p == 0 ) { //child
-
-			playHangman(sd2);
+			char word[strlen(argv[2])];
+			strcpy(word, argv[2]);
+			playHangman(sd2, word);
 		} else {	//parent
 
 		}
@@ -128,10 +129,15 @@ int main(int argc, char **argv) {
 
 }
 
-int playHangman(int sd2) {
+int playHangman(int sd2, char* word) {
 	char buf[1000];
-	char word[6] = "binary";
-	char board[6] = "______";
+	printf("word is: %s\n", word);
+	char board[strlen(word) + 1];
+	for (int i = 0; i < strlen(word); i++){
+		board[i] = '_';
+	}
+	//board[strlen(word) + 1] = '\0';
+
 //	char board[strlen(word)];
 	int n = 0;
 	//make board
@@ -154,6 +160,7 @@ int playHangman(int sd2) {
 			printf("recv failed\n");
 		}
 		for(int i = 0; i < strlen(board); i++){
+
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
 				correct = 1;
