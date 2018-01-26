@@ -146,8 +146,8 @@ int playHangman(int sd2, char* word) {
 	printf("%s\n",board);
 
 	//char
-	uint8_t guesses = 6; //strlen(word); //change to number of letters
 
+	uint8_t guesses = strlen(word); //change to number of letters;
 	while (guesses > 0 && strchr(board, '_')){
 		//Send guesses and board
 		send(sd2, &guesses,sizeof(uint8_t),0);
@@ -160,13 +160,11 @@ int playHangman(int sd2, char* word) {
 			printf("recv failed\n");
 		}
 		for(int i = 0; i < strlen(board); i++){
-
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
 				correct = 1;
 			}
 		}
-
 		if (correct == 0){
 			guesses--;
 		}
