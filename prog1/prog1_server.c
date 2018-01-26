@@ -136,7 +136,7 @@ int playHangman(int sd2, char* word) {
 	for (int i = 0; i < strlen(word); i++){
 		board[i] = '_';
 	}
-	//board[strlen(word) + 1] = '\0';
+	board[strlen(word) + 1] = '\0';
 
 //	char board[strlen(word)];
 	int n = 0;
@@ -152,6 +152,7 @@ int playHangman(int sd2, char* word) {
 		//Send guesses and board
 		send(sd2, &guesses,sizeof(uint8_t),0);
 		printf("server guesses: %i\n", guesses);
+		printf("server board: %s\n", board);
 		send(sd2, board,sizeof(board),0);
 		int correct = 0;
 		//Send guesses and boardchar word[] = "hello";

@@ -84,12 +84,17 @@ int main( int argc, char **argv) {
 	/* Repeatedly read data from socket and write to user's screen. */
 	//Default value
 	uint8_t guesses = 1;
-
+	int contacts = 0;
 	while (guesses > 0 && guesses != 255) {
 		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
 		printf("client guesses: %i\n", guesses);
 		//recieve board
 		n = recv(sd, buf, sizeof(buf), 0);
+		if(contacts == 0){
+			contacts = guesses;
+		}
+		buf[contacts] = '\0';
+		printf("n is: %d\n", n);
 		if(guesses != 0 && guesses != 255){
 			printf("board is: %s\n", buf);
 			printf("Please insert your guess\n");
