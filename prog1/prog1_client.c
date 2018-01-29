@@ -31,7 +31,8 @@ int main( int argc, char **argv) {
 	int port; /* protocol port number */
 	char *host; /* pointer to host name */
 	int n; /* number of characters read */
-	char buf[1000]; /* buffer for data from the server */
+	char board[1000]; /* buffer for data from the server */
+	char guessBuf[1000]; /* buffer to store guesses from cilents */
 
 	memset((char *)&sad,0,sizeof(sad)); /* clear sockaddr structure */
 	sad.sin_family = AF_INET; /* set family to Internet */
@@ -85,6 +86,9 @@ int main( int argc, char **argv) {
 	//Default value
 	uint8_t guesses = 1;
 	int contacts = 0;
+	char guess;
+	int bufIdx = 0;
+	guessBuf[0]= '\0';
 	while (guesses > 0 && guesses != 255) {
 		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
 		printf("client guesses: %i\n", guesses);
@@ -92,15 +96,29 @@ int main( int argc, char **argv) {
 		if(contacts == 0){
 			contacts = guesses;
 		}
-		n = recv(sd, buf, sizeof(buf), 0);
-		buf[contacts] = '\0';
+		n = recv(sd, board, sizeof(board), 0);
+		board[contacts] = '\0';
 		printf("n is: %d\n", n);
 		if(guesses != 0 && guesses != 255){
-			printf("board is: %s\n", buf);
+			printf("board is: %s\n", board);
 			printf("Please insert your guess\n");
-			fgets(buf, sizeof(buf), stdin);
-			printf("guess is: %s\n", buf);// gets user guess
-			send(sd, buf, strlen(buf),0);
+			printf("guessBuf[0]: %c\n", guessBuf[bufIdx]);
+			if(guessBuf[bufIdx] == '\0' && guessBuf[bufIdx] != '\n'){
+				printf("Made it\n");
+				bufIdx = 0;
+				fgets(guessBuf, sizeof(guessBuf), stdin); //fgetc only get c
+				guess = guessBuf[bufIdx];
+				bufIdx++;
+			}
+			else{
+				guess = guessBuf[bufIdx];
+				bufIdx++;
+			}
+
+			printf("guess is: %s\n", guessBuf);// gets user guess
+			//printf("strlen is: %d\n\n", (int)strlen(guessBuf));
+
+			send(sd, &guess, 1,0);
 		}
 	}
 	dprintf(2, "exited\n");

@@ -112,19 +112,6 @@ int main(int argc, char **argv) {
 		} else {	//parent
 
 		}
-
-		// visits++;
-		// sprintf(buf,"This server has been contacted %d time%s\n",visits,visits==1?".":"s.");
-		//
-		// send(sd2,&guesses,sizeof(uint8_t),0);
-		//
-		// send(sd2,buf,strlen(buf),0);
-		//
-		// //Testing recv from client
-		// recv(sd2,&guesses,strlen(buf),0);
-		// printf("Number of guesses %d\n", guesses);
-		//
-		// close(sd2);
 	}
 
 }
@@ -156,10 +143,11 @@ int playHangman(int sd2, char* word) {
 		send(sd2, board, strlen(board),0);
 		int correct = 0;
 		//Send guesses and boardchar word[] = "hello";
-		n = recv(sd2,buf,sizeof(buf),0);
+		n = recv(sd2,buf,sizeof(char),0);
 		if (n <= 0){
 			printf("recv failed\n");
 		}
+		printf("guess from client: %s\n\n", buf);
 		for(int i = 0; i < strlen(board); i++){
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
