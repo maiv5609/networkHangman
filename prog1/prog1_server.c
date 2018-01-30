@@ -99,8 +99,7 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "Error: Accept failed\n");
 			exit(EXIT_FAILURE);
 		}
-		//sleep(10);
-		signal(SIGCHLD,SIG_IGN);
+		signal(SIGCHLD,SIG_IGN); //kill zombies/children
 		pid_t p = fork();
 		if( p < 0 ) {
 			fprintf(stderr,"fork failed\n");
@@ -116,53 +115,59 @@ int main(int argc, char **argv) {
 
 }
 
+
+/* playHangman
+* sd2   the socket
+* word  a copy of the command line argument. The secret word.
+*
+* Contains the main server loop. Also contains the game logic for hangman.
+* Enforces rules for multiple clients. Leads to either a win after getting all
+* letters in the word or leads to a lose after running out of guesses. Then the
+* socket is closed.
+*/
 int playHangman(int sd2, char* word) {
-	char buf[1];
-	//printf("word is: %s\n", word);
+	char buf[1]; //letter that will contain the guess from the client
 	char board[strlen(word) + 1];
 	for (int i = 0; i < strlen(word); i++){
-		board[i] = '_';
+		board[i] = '_'; //fill with _
 	}
-	board[strlen(word) + 1] = '\0';
+	board[strlen(word) + 1] = '\0'; //add null terminator
 
-	int n = 0;
-
-
-	uint8_t guesses = strlen(word); //change to number of letters;
+	int n = 0; //number of bytes received from recv
+	uint8_t guesses = strlen(word);
 	while (guesses > 0 && strchr(board, '_')){
 		//Send guesses and board
 		send(sd2, &guesses,sizeof(uint8_t),0);
-		//printf("server guesses: %i\n", guesses);
-		//printf("server board: %s\n", board);
 		send(sd2, board, strlen(board),0);
-		int correct = 0;
-		int repeat = 0;
-		//Send guesses and boardchar word[] = "hello";
-		n = recv(sd2,buf,1,MSG_WAITALL);
+		int correct = 0; //flag for checking if guess is correct
+		int repeat = 0; // flag for if guesses is repeated
+		n = recv(sd2,buf,1,MSG_WAITALL); //receive a single character
 		if (n <= 0){
 			printf("recv failed\n");
 		}
-		//printf("guess from client: %s\n\n", buf);
+		//check for repeats
 		for(int i = 0; i < strlen(board); i++){
 			if(board[i] == buf[0]){
 				repeat = 1;
 			}
 		}
+		//check for correct letter
 		for(int i = 0; i < strlen(board); i++){
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
 				correct = 1;
 			}
 		}
+		//decrement guesses accordingly
 		if (correct == 0 || repeat == 1){
 			guesses--;
 		}
 	}
+
 	if (strchr(board, '_') == '\0'){
 		guesses = 255;
 	}
 	send(sd2, &guesses,sizeof(uint8_t),0);
 	send(sd2, board,strlen(board),0);
-	//dprintf(2, "Game finished");
 	close(sd2);
 }

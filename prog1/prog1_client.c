@@ -84,42 +84,42 @@ int main( int argc, char **argv) {
 
 	/* Repeatedly read data from socket and write to user's screen. */
 	//Default value
-	uint8_t guesses = 1;
-	int contacts = 0;
-	char guess;
-	int bufIdx = 0;
+	uint8_t guesses = 1; //initialize to 1 to enter while loop
+	int wordLen = 0;  	 // Acts as strlen of word by setting equal to inital guesses
+	char guess; 		 //guess to send to the server
+	int bufIdx = 0; 	 //used to move along the buffer containing the guess for multiple characters
 	guessBuf[0]= '\0';
 	while (guesses > 0 && guesses != 255) {
 		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
-		//recieve board
-		if(contacts == 0){
-			contacts = guesses;
+		if(wordLen == 0){
+			wordLen = guesses;
 		}
 		n = recv(sd, board, sizeof(board), 0);
-		board[contacts] = '\0';
+		board[wordLen] = '\0'; //null terminate board
 		if(guesses != 0 && guesses != 255){
-			printf("board is: %s\n", board);
+			printf("\nBoard is: %s\n", board);
 			printf("Number of guesses remaining: %d\n", guesses);
 			printf("Please insert your guess\n");
+			//logic for handling multicharacter guesses and the newline character
+			//only enters if current buf has been checked. Meant to get new input from user
 			if(guessBuf[bufIdx] == '\0' || guessBuf[bufIdx] == '\n'){
-				bufIdx = 0;
-				fgets(guessBuf, sizeof(guessBuf), stdin); //fgetc only get c
+				bufIdx = 0;	//reset bufIdx fto beginning
+				fgets(guessBuf, sizeof(guessBuf), stdin); //buffer is rewritten
 				guess = guessBuf[bufIdx];
 				bufIdx++;
 			}
-			else{
+			else{  //else continue reading from buffer
 				guess = guessBuf[bufIdx];
 				bufIdx++;
 			}
 			send(sd, &guess, 1,0);
 		}
 	}
-	dprintf(2, "exited\n");
 	if(guesses == 255){
-		printf("board is: %s\n", board);
+		printf("\nFinal board is: %s\n", board);
 		printf("You win\n");
 	}else{
-		printf("board is: %s\n", board);
+		printf("\nFinal board is: %s\n", board);
 		printf("You lost\n");
 	}
 
