@@ -117,44 +117,44 @@ int main(int argc, char **argv) {
 }
 
 int playHangman(int sd2, char* word) {
-	char buf[1000];
-	printf("word is: %s\n", word);
+	char buf[1];
+	//printf("word is: %s\n", word);
 	char board[strlen(word) + 1];
 	for (int i = 0; i < strlen(word); i++){
 		board[i] = '_';
 	}
 	board[strlen(word) + 1] = '\0';
 
-//	char board[strlen(word)];
 	int n = 0;
-	//make board
 
-	//memset(board, '_', sizeof(board));
-	printf("%s\n",board);
-
-	//char
 
 	uint8_t guesses = strlen(word); //change to number of letters;
 	while (guesses > 0 && strchr(board, '_')){
 		//Send guesses and board
 		send(sd2, &guesses,sizeof(uint8_t),0);
-		printf("server guesses: %i\n", guesses);
-		printf("server board: %s\n", board);
+		//printf("server guesses: %i\n", guesses);
+		//printf("server board: %s\n", board);
 		send(sd2, board, strlen(board),0);
 		int correct = 0;
+		int repeat = 0;
 		//Send guesses and boardchar word[] = "hello";
-		n = recv(sd2,buf,sizeof(char),0);
+		n = recv(sd2,buf,1,MSG_WAITALL);
 		if (n <= 0){
 			printf("recv failed\n");
 		}
-		printf("guess from client: %s\n\n", buf);
+		//printf("guess from client: %s\n\n", buf);
+		for(int i = 0; i < strlen(board); i++){
+			if(board[i] == buf[0]){
+				repeat = 1;
+			}
+		}
 		for(int i = 0; i < strlen(board); i++){
 			if(word[i] == buf[0]){
 				board[i] = buf[0];
 				correct = 1;
 			}
 		}
-		if (correct == 0){
+		if (correct == 0 || repeat == 1){
 			guesses--;
 		}
 	}
@@ -163,6 +163,6 @@ int playHangman(int sd2, char* word) {
 	}
 	send(sd2, &guesses,sizeof(uint8_t),0);
 	send(sd2, board,strlen(board),0);
-	dprintf(2, "Game finished");
+	//dprintf(2, "Game finished");
 	close(sd2);
 }

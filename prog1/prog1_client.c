@@ -91,20 +91,17 @@ int main( int argc, char **argv) {
 	guessBuf[0]= '\0';
 	while (guesses > 0 && guesses != 255) {
 		n = recv(sd, &guesses, sizeof(uint8_t),MSG_WAITALL);
-		printf("client guesses: %i\n", guesses);
 		//recieve board
 		if(contacts == 0){
 			contacts = guesses;
 		}
 		n = recv(sd, board, sizeof(board), 0);
 		board[contacts] = '\0';
-		printf("n is: %d\n", n);
 		if(guesses != 0 && guesses != 255){
 			printf("board is: %s\n", board);
+			printf("Number of guesses remaining: %d\n", guesses);
 			printf("Please insert your guess\n");
-			printf("guessBuf[0]: %c\n", guessBuf[bufIdx]);
-			if(guessBuf[bufIdx] == '\0' && guessBuf[bufIdx] != '\n'){
-				printf("Made it\n");
+			if(guessBuf[bufIdx] == '\0' || guessBuf[bufIdx] == '\n'){
 				bufIdx = 0;
 				fgets(guessBuf, sizeof(guessBuf), stdin); //fgetc only get c
 				guess = guessBuf[bufIdx];
@@ -114,17 +111,15 @@ int main( int argc, char **argv) {
 				guess = guessBuf[bufIdx];
 				bufIdx++;
 			}
-
-			printf("guess is: %s\n", guessBuf);// gets user guess
-			//printf("strlen is: %d\n\n", (int)strlen(guessBuf));
-
 			send(sd, &guess, 1,0);
 		}
 	}
 	dprintf(2, "exited\n");
 	if(guesses == 255){
+		printf("board is: %s\n", board);
 		printf("You win\n");
 	}else{
+		printf("board is: %s\n", board);
 		printf("You lost\n");
 	}
 
